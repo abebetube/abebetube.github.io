@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AbeTube</title>
+  <link rel="icon" type="image/png" href="logo.png" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #888888;
+      color: white;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #959595;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
+    header img { height: 40px; }
+    header h1 { margin: 0; font-size: 24px; }
+    .search-bar {
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .search-bar input {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .controls button, .pagination button {
+      background-color: #989898;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 15px;
+      color: #e0e0e0;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .controls button:hover, .pagination button:hover { background-color: #3a3a3a; }
+    #loader {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    .spinner {
+      border: 8px solid #2c2c2c;
+      border-top: 8px solid #ffffff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    #error {
+      display: none;
+      text-align: center;
+      color: #ff5252;
+      margin-top: 20px;
+    }
+
+    #player {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    #player iframe {
+      width: 100%;
+      max-width: 720px;
+      height: 405px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+    .video-card {
+      background-color: #b5b5b5;
+      padding: 10px;
+      border-radius: 12px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+    .video-card img { width: 100%; border-radius: 8px; }
+    .video-title { margin: 10px 0 0; font-size: 16px; line-height: 1.4; color: #e0e0e0; }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-animation 0.6s linear;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+    @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AbeTube</h1>
+    <img src="logo.png" alt="AbeTube Logo">
+  </header>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="חפש סרטונים ביוטיוב..." oninput="searchVideos()" />
+  </div>
+
+  <div class="controls">
+    <button id="backBtn">⬅ חזור</button>
+    <button id="forwardBtn">➡ קדימה</button>
+  </div>
+
+  <div id="loader"><div class="spinner"></div></div>
+  <div id="error">אין חיבור לאינטרנט. בדוק ונסה שוב.</div>
+  <div id="player"></div>
+  <h2 class="results-title" id="resultsTitle" style="display: none;">סרטונים נוספים</h2>
+  <div class="results" id="results"></div>
+  <div class="pagination" id="pagination" style="text-align:center; margin-bottom: 30px; display:none;">
+    <button onclick="loadPrevPage()">⬅ הקודם</button>
+    <button onclick="loadNextPage()">הבא ➡</button>
+  </div>
+
+  <script>
+    const API_KEY = "AIzaSyDXTquo5ijHW04eZwtWCi18jVB3Q6BRUGE";
+    let currentItems = [];
+    let nextPageToken = '';
+    let prevPageToken = '';
+    let currentQuery = '';
+    let historyBack = [];
+    let historyForward = [];
+    let currentVideoId;
+
+    function searchVideos(pageToken = '') {
+	if (!navigator.onLine && location.protocol !== "file:") {
+  document.getElementById('error').style.display = 'block';
+  return;
+      }
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('loader').style.display = 'block';
+
+      const query = document.getElementById('searchInput').value;
+      if (!query.trim()) return;
+      currentQuery = query;
+
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          nextPageToken = data.nextPageToken || '';
+          prevPageToken = data.prevPageToken || '';
+          document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'block' : 'none';
+          currentItems = data.items;
+          renderResults(currentItems);
+          document.getElementById('loader').style.display = 'none';
+        })
+        .catch(() => {
+          document.getElementById('error').style.display = 'block';
+          document.getElementById('loader').style.display = 'none';
+        });
+    }
+
+    function renderResults(items) {
+      const resultsDiv = document.getElementById('results');
+      const resultsTitle = document.getElementById('resultsTitle');
+      resultsDiv.innerHTML = '';
+      resultsTitle.style.display = 'block';
+
+      items.forEach((item) => {
+        const { videoId } = item.id;
+        const title = item.snippet.title;
+        const thumbnail = item.snippet.thumbnails.medium.url;
+        const card = document.createElement('div');
+        card.className = 'video-card';
+        card.innerHTML = `
+          <img src="${thumbnail}" alt="${title}" />
+          <div class="video-title">${title}</div>
+        `;
+        card.onclick = () => playVideo(videoId);  // עדכון המנגן עם סרטון חדש
+        resultsDiv.appendChild(card);
+      });
+
+      // אם יש תוצאה אחת לפחות, ננגן את הסרטון הראשון
+      if (items.length) {
+        const firstVideoId = items[0].id.videoId;
+        if (!currentVideoId) {
+          currentVideoId = firstVideoId;
+          createPlayer(firstVideoId);  // יצירת מנגן אם אין אחד
+        }
+      }
+    }
+
+    function createPlayer(videoId) {
+      const playerDiv = document.getElementById('player');
+      playerDiv.innerHTML = `
+        <iframe id="playerIframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1"
+                allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      `;
+      playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function playVideo(videoId) {
+      if (videoId === currentVideoId) return;  // אם הסרטון כבר מנוגן, אין צורך להפעיל אותו מחדש
+      currentVideoId = videoId;
+      historyBack.push(videoId);  // שמירה בהיסטוריית "חזור"
+      historyForward = [];  // נקה את ההיסטוריה של קדימה
+      createPlayer(videoId);
+    }
+
+    function loadPrevPage() {
+      if (historyBack.length > 1) {
+        const prevVideoId = historyBack.pop();  // הסר את הסרטון הנוכחי
+        historyForward.push(currentVideoId);  // שמור את הסרטון הנוכחי בהיסטוריית קדימה
+        currentVideoId = historyBack[historyBack.length - 1];  // חזור לסרטון הקודם
+        createPlayer(currentVideoId);  // הפעל את הסרטון הקודם
+      }
+    }
+
+    function loadNextPage() {
+      if (historyForward.length > 0) {
+        const nextVideoId = historyForward.pop();  // הסר את הסרטון הנוכחי
+        historyBack.push(currentVideoId);  // שמור את הסרטון הנוכחי בהיסטוריית חזור
+        currentVideoId = nextVideoId;  // חזור לסרטון הבא
+        createPlayer(currentVideoId);  // הפעל את הסרטון הבא
+      }
+    }
+
+    // אירועים על כפתורי חזור וקדימה
+    document.getElementById('backBtn').onclick = loadPrevPage;
+    document.getElementById('forwardBtn').onclick = loadNextPage;
+
+    // פונקציה להקלטת ולחיצה על Enter בהזנה
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        searchVideos();  // חיפוש סרטונים כשנלחץ על Enter
+      }
+    });
+  </script>
+</body>
+</html>
