@@ -164,7 +164,7 @@
 
       if (!query) return;
 
-      fetch(`http://localhost:3000/search?q=${encodeURIComponent(query)}`)
+      fetch(`https://abetube-server1.vercel.app/search?q=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
           if (!data || data.videos.length === 0) {
@@ -195,9 +195,9 @@
 
     function loadVideo(videoId) {
       const playerDiv = document.getElementById("player");
-      playerDiv.innerHTML = `
+      playerDiv.innerHTML = `  
         <iframe 
-          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1"
+          src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1" 
           allow="autoplay; encrypted-media" 
           allowfullscreen>
         </iframe>
