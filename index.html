@@ -3,30 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AbeTube</title>
+  <title>AbeTube - חיפוש סרטונים</title>
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #111;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #121212;
       color: #fff;
-      text-align: center;
-      direction: rtl;
     }
 
     header {
-      background-color: #222;
-      padding: 10px;
+      background-color: #1e1e1e;
+      padding: 15px 20px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    h1 {
+      font-size: 1.8em;
+      margin: 0;
+      color: crimson;
     }
 
     .logo {
       width: 40px;
       height: 40px;
-      border-radius: 5px;
+      border-radius: 8px;
+      border: 2px solid crimson;
     }
 
     .search-bar {
@@ -38,19 +43,43 @@
     }
 
     .search-bar input {
-      width: 250px;
-      padding: 10px;
-      border-radius: 5px;
-      border: none;
+      width: 280px;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background-color: #1e1e1e;
+      color: #fff;
     }
 
     .search-bar button {
-      padding: 10px 20px;
+      padding: 12px 20px;
       background-color: crimson;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    .search-bar button:hover {
+      background-color: #e60023;
+    }
+
+    .player {
+      margin: 20px auto;
+      width: 100%;
+      max-width: 1000px;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .player iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     .results {
@@ -62,12 +91,13 @@
     }
 
     .result-item {
-      background-color: #222;
+      background-color: #1f1f1f;
       padding: 10px;
-      border-radius: 10px;
+      border-radius: 12px;
       width: 200px;
       cursor: pointer;
       transition: transform 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     }
 
     .result-item:hover {
@@ -76,60 +106,68 @@
 
     .result-item img {
       width: 100%;
-      border-radius: 5px;
+      border-radius: 8px;
     }
 
     .result-item h4 {
-      font-size: 14px;
+      font-size: 15px;
       margin: 10px 0 0;
+      color: #ddd;
     }
 
-    .player {
-      margin: 20px auto;
-      max-width: 100%;
-      aspect-ratio: 16 / 9;
+    @media (max-width: 600px) {
+      .search-bar input {
+        width: 90%;
+      }
+
+      .result-item {
+        width: 90%;
+      }
     }
 
-    .player iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 10px;
-    }
   </style>
 </head>
 <body>
+
   <header>
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAABW0lEQVR4Xu3aQQ2AIBCG4e+6e9XG6oO0C9AWg6zVWTtAEEI4cnMvAkAAAAAAAAAAMDLF4zr11xbJpBPMtVhV0pbNl8BYiyVKJRKJRCJRKJRKJRCJRKJRCJRKJRCJRKJRCJRKJRCJRKJfN62sbyXzVVEqRSCUSiUSiUSiUSiUSiUSiUSiUSiUSiUSiUSiUSiUSv+2+yKTVqSKqzBWkSAAAAAAAAAABwFXkc6UmUgmHAAAAAElFTkSuQmCC" alt="AbeTube Logo" class="logo"/>
     <h1>AbeTube</h1>
+    <img src="logo.png" alt="AbeTube Logo" class="logo">
   </header>
 
   <main>
     <div class="search-bar">
-      <input type="text" id="searchInput" placeholder="חפש סרטונים..." />
+      <label for="searchInput">חפש סרטונים:</label>
+      <input type="text" id="searchInput" name="searchQuery" placeholder="חפש סרטונים..."/>
       <button onclick="searchVideos()">חפש</button>
     </div>
-    
+
     <div id="player" class="player"></div>
     <div id="results" class="results"></div>
   </main>
 
   <script>
-    const apiKey = 'AIzaSyAU5b94VFTUNMBLVCdkd_PagUbq1ic-FGQ'; // שים כאן את המפתח שלך
-
     function searchVideos() {
-      const query = document.getElementById("searchInput").value;
+      const query = document.getElementById("searchInput").value.trim();
+      const resultsDiv = document.getElementById("results");
+      const playerDiv = document.getElementById("player");
+
+      resultsDiv.innerHTML = "";
+      playerDiv.innerHTML = "";
+
       if (!query) return;
 
-      fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${apiKey}&maxResults=10`)
+      fetch(`http://localhost:3000/search?q=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
-          const resultsDiv = document.getElementById("results");
-          resultsDiv.innerHTML = "";
-          data.items.forEach(item => {
-            const videoId = item.id.videoId;
-            const title = item.snippet.title;
-            const thumbnail = item.snippet.thumbnails.medium.url;
+          if (!data || data.videos.length === 0) {
+            resultsDiv.innerHTML = "<p>לא נמצאו תוצאות.</p>";
+            return;
+          }
+
+          data.videos.forEach(item => {
+            const videoId = item.videoId;
+            const title = item.title;
+            const thumbnail = item.thumbnail;
 
             const videoItem = document.createElement("div");
             videoItem.className = "result-item";
@@ -142,13 +180,12 @@
           });
         })
         .catch(err => {
-          console.error("שגיאה בחיפוש:", err);
+          console.error("שגיאה:", err);
+          resultsDiv.innerHTML = "<p>שגיאה בחיפוש.</p>";
         });
     }
 
     function loadVideo(videoId) {
-      localStorage.setItem("lastWatchedVideoId", videoId);
-
       const playerDiv = document.getElementById("player");
       playerDiv.innerHTML = `
         <iframe 
@@ -157,6 +194,7 @@
           allowfullscreen>
         </iframe>
       `;
+      localStorage.setItem("lastWatchedVideoId", videoId);
       playerDiv.scrollIntoView({ behavior: "smooth" });
     }
 
@@ -167,5 +205,6 @@
       }
     });
   </script>
+
 </body>
 </html>
