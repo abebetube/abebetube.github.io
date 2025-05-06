@@ -145,7 +145,7 @@
   </div>
 
   <script>
-    const API_KEY = "AIzaSyDXTquo5ijHW04eZwtWCi18jVB3Q6BRUGE";
+    const API_KEY = "AIzaSyAU5b94VFTUNMBLVCdkd_PagUbq1ic-FGQ";
     let currentItems = [];
     let nextPageToken = '';
     let prevPageToken = '';
@@ -155,9 +155,9 @@
     let currentVideoId;
 
     function searchVideos(pageToken = '') {
-	if (!navigator.onLine && location.protocol !== "file:") {
-  document.getElementById('error').style.display = 'block';
-  return;
+      if (!navigator.onLine) {
+        document.getElementById('error').style.display = 'block';
+        return;
       }
       document.getElementById('error').style.display = 'none';
       document.getElementById('loader').style.display = 'block';
@@ -261,3 +261,5 @@
   </script>
 </body>
 </html>
+
+
