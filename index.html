@@ -138,7 +138,7 @@
     <div class="search-bar">
       <label for="searchInput">חפש סרטונים:</label>
       <input type="text" id="searchInput" name="searchQuery" placeholder="חפש סרטונים..."/>
-      <button onclick="searchVideos()">חפש</button>
+      <button id="searchButton">חפש</button>
     </div>
 
     <div id="player" class="player"></div>
@@ -146,6 +146,14 @@
   </main>
 
   <script>
+    document.getElementById("searchButton").addEventListener("click", searchVideos);
+
+    document.getElementById("searchInput").addEventListener("keydown", function(event) {
+      if (event.key === "Enter") {
+        searchVideos();
+      }
+    });
+
     function searchVideos() {
       const query = document.getElementById("searchInput").value.trim();
       const resultsDiv = document.getElementById("results");
