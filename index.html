@@ -212,15 +212,17 @@
         }
       }
     }
+function createPlayer(videoId) {
+  const playerDiv = document.getElementById('player');
+  playerDiv.innerHTML = `
+    <iframe id="playerIframe"
+            src="https://piped.video/embed/${videoId}?autoplay=1"
+            allow="autoplay; encrypted-media" allowfullscreen>
+    </iframe>
+  `;
+  playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
-    function createPlayer(videoId) {
-      const playerDiv = document.getElementById('player');
-      playerDiv.innerHTML = `
-        <iframe id="playerIframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1"
-                allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      `;
-      playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
 
     function playVideo(videoId) {
       if (videoId === currentVideoId) return;  // אם הסרטון כבר מנוגן, אין צורך להפעיל אותו מחדש
