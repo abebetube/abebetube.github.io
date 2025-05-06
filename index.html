@@ -1,4 +1,6 @@
+
 <!DOCTYPE html>
+
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
@@ -73,50 +75,53 @@
       margin-top: 20px;
     }
 
-    #player {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
+```
+#player {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
 
-    #player iframe {
-      width: 100%;
-      max-width: 720px;
-      height: 405px;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-    }
+#player iframe {
+  width: 100%;
+  max-width: 720px;
+  height: 405px;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
 
-    .results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      padding: 20px;
-    }
-    .video-card {
-      background-color: #b5b5b5;
-      padding: 10px;
-      border-radius: 12px;
-      transition: transform 0.3s, box-shadow 0.3s;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    .video-card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-    }
-    .video-card img { width: 100%; border-radius: 8px; }
-    .video-title { margin: 10px 0 0; font-size: 16px; line-height: 1.4; color: #e0e0e0; }
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      transform: scale(0);
-      animation: ripple-animation 0.6s linear;
-      background-color: rgba(255, 255, 255, 0.5);
-    }
-    @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+.video-card {
+  background-color: #b5b5b5;
+  padding: 10px;
+  border-radius: 12px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.video-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+.video-card img { width: 100%; border-radius: 8px; }
+.video-title { margin: 10px 0 0; font-size: 16px; line-height: 1.4; color: #e0e0e0; }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  animation: ripple-animation 0.6s linear;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+@keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
+```
+
   </style>
 </head>
 <body>
@@ -212,17 +217,15 @@
         }
       }
     }
-function createPlayer(videoId) {
-  const playerDiv = document.getElementById('player');
-  playerDiv.innerHTML = `
-    <iframe id="playerIframe"
-            src="https://piped.video/embed/${videoId}?autoplay=1"
-            allow="autoplay; encrypted-media" allowfullscreen>
-    </iframe>
-  `;
-  playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-}
 
+    function createPlayer(videoId) {
+      const playerDiv = document.getElementById('player');
+      playerDiv.innerHTML = `
+        <iframe id="playerIframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1"
+                allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      `;
+      playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     function playVideo(videoId) {
       if (videoId === currentVideoId) return;  // אם הסרטון כבר מנוגן, אין צורך להפעיל אותו מחדש
@@ -261,7 +264,6 @@ function createPlayer(videoId) {
       }
     });
   </script>
+
 </body>
 </html>
-
-
