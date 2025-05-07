@@ -6,120 +6,141 @@
   <title>AbeTube</title>
   <link rel="icon" type="image/png" href="logo.png" />
   <style>
-    /* סטיילים לעיצוב הדף */
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
+      background-color: #888888;
+      color: white;
     }
-
+	
     header {
-      background-color: #333;
-      color: white;
-      padding: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #959595;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
     }
-
-    header h1 {
-      margin: 0;
-      font-size: 2rem;
-    }
-
-    header img {
-      width: 50px;
-      vertical-align: middle;
-      margin-left: 10px;
-    }
-
+    header img { height: 40px; }
+    header h1 { margin: 0; font-size: 24px; }
     .search-bar {
-      margin: 20px;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
     }
-
     .search-bar input {
-      width: 80%;
+      width: 300px;
       padding: 10px;
-      font-size: 1rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-
-    .controls button {
-      background-color: #333;
-      color: white;
+      font-size: 16px;
+      border-radius: 8px;
       border: none;
-      padding: 10px;
-      cursor: pointer;
-      margin: 10px;
-      border-radius: 5px;
     }
-
-    .controls button:hover {
-      background-color: #555;
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
     }
+	.controls button, .pagination button {
+  background-color: #3b3b3b;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.controls button:hover, .pagination button:hover {
+  background-color: #1c1c1c;
+}
 
-    #loader {
-      display: none;
-      margin: 20px;
+    .spinner {
+      border: 8px solid #2c2c2c;
+      border-top: 8px solid #ffffff;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: auto;
     }
-
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     #error {
       display: none;
-      color: red;
-      font-size: 1.2rem;
-      margin: 20px;
-    }
-
-    .results-title {
-      font-size: 1.5rem;
+      text-align: center;
+      color: #ff5252;
       margin-top: 20px;
     }
+	
+	#player {
+  position: relative;
+  width: 100%;
+  max-width: 100%; /* להבטיח שלא יעבור את רוחב המסך */
+  height: 0;
+  padding-bottom: 56.25%;  /* יחס גובה-רוחב של 16:9 */
+  margin: 20px auto;
+  background-color: #000; /* להוסיף רקע שחור אם אין סרטון */
+}
 
+#player iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+}
+
+
+
+	
     .results {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
     }
-
     .video-card {
-      width: 200px;
-      margin: 10px;
+      background-color: #b5b5b5;
+      padding: 10px;
+      border-radius: 12px;
+      transition: transform 0.3s, box-shadow 0.3s;
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
     }
-
-    .video-card img {
-      width: 100%;
-      border-radius: 5px;
+    .video-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
     }
-
-    .video-title {
-      margin-top: 10px;
-      font-size: 1rem;
-      font-weight: bold;
+    .video-card img { width: 100%; border-radius: 8px; }
+    .video-title { margin: 10px 0 0; font-size: 16px; line-height: 1.4; color: #e0e0e0; }
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-animation 0.6s linear;
+      background-color: rgba(255, 255, 255, 0.5);
     }
-
-    .pagination {
-      margin-top: 20px;
-    }
-
-    iframe {
-      width: 80%;
-      height: 450px;
-      border: none;
-      margin-top: 20px;
-    }
+    @keyframes ripple-animation { to { transform: scale(4); opacity: 0; } }
   </style>
 </head>
+	
 <body>
   <header>
     <h1>AbeTube</h1>
     <img src="logo.png" alt="AbeTube Logo">
   </header>
 
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="חפש סרטונים ביוטיוב..." oninput="searchVideos()" />
-  </div>
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="חפש סרטונים ביוטיוב..." oninput="searchVideos()" onkeydown="checkEnter(event)" />
+  <button onclick="searchVideos()">חפש</button>
+</div>
+
+
+
 
   <div class="controls">
     <button id="backBtn" onclick="loadPrevPage()">⬅ חזור</button>
@@ -128,7 +149,11 @@
 
   <div id="loader"><div class="spinner"></div></div>
   <div id="error">אין חיבור לאינטרנט. בדוק ונסה שוב.</div>
+  
   <div id="player"></div>
+
+
+
   <h2 class="results-title" id="resultsTitle" style="display: none;">סרטונים נוספים</h2>
   <div class="results" id="results"></div>
   <div class="pagination" id="pagination" style="text-align:center; margin-bottom: 30px; display:none;">
@@ -225,6 +250,12 @@
         const { videoId } = item.id;
         const title = item.snippet.title;
         const thumbnail = item.snippet.thumbnails.medium.url;
+
+        // בדיקה אם ניתן לנגן את הסרטון
+        if (item.snippet.liveBroadcastContent === 'upcoming' || !videoId) {
+          return; // אם הסרטון לא ניתן לנגן, לא מציגים אותו
+        }
+
         const card = document.createElement('div');
         card.className = 'video-card';
         card.innerHTML = `
@@ -245,14 +276,15 @@
       }
     }
 
-    function createPlayer(videoId) {
-      const playerDiv = document.getElementById('player');
-      playerDiv.innerHTML = `
-        <iframe id="playerIframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1"
-                allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      `;
-      playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+function createPlayer(videoId) {
+  const playerDiv = document.getElementById('player');
+  playerDiv.innerHTML = `
+    <iframe id="playerIframe" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1"
+            allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  `;
+  playerDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 
     function playVideo(videoId) {
       if (videoId !== currentVideoId) {
@@ -275,6 +307,60 @@
 
     // טעינת החיפוש הקודם אם קיים
     loadPreviousSearch();
+	
+	
+	
+	// פונקציה שבודקת אם נלחץ Enter כדי להפעיל את החיפוש
+function checkEnter(event) {
+  if (event.key === 'Enter') {
+    searchVideos(); // מבצע חיפוש אם נלחץ Enter
+  }
+}
+
+// פונקציה לחיפוש סרטונים
+function searchVideos(pageToken = '') {
+  if (!navigator.onLine) {
+    document.getElementById('error').style.display = 'block';
+    return;
+  }
+  document.getElementById('error').style.display = 'none';
+  document.getElementById('loader').style.display = 'block';
+
+  const query = document.getElementById('searchInput').value;
+  if (!query.trim()) return;
+
+  currentQuery = query;
+  localStorage.setItem('lastQuery', query);
+
+  const cachedResults = loadCache(query);
+  if (cachedResults) {
+    nextPageToken = cachedResults.nextPageToken || '';
+    prevPageToken = cachedResults.prevPageToken || '';
+    document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'block' : 'none';
+    currentItems = cachedResults.items;
+    renderResults(currentItems);
+    document.getElementById('loader').style.display = 'none';
+    return;
+  }
+
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      nextPageToken = data.nextPageToken || '';
+      prevPageToken = data.prevPageToken || '';
+      document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'block' : 'none';
+      currentItems = data.items;
+      renderResults(currentItems);
+      saveCache(query, data);
+      document.getElementById('loader').style.display = 'none';
+    })
+    .catch(() => {
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('loader').style.display = 'none';
+    });
+}
+
   </script>
 </body>
 </html>
