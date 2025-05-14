@@ -7,108 +7,164 @@
   <link rel="icon" type="image/png" href="logo.png" />
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: #f4f4f4;
+      font-family: Arial, sans-serif;
+      background-color: #888888;
+      color: white;
     }
-	
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between; /* ישים את הלוגו מצד אחד ואת הכותרת מצד שני */
-  background-color: #959595;
-  padding: 10px 20px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-}
 
-header img {
-  height: 40px; /* שמירה על גובה הלוגו */
-}
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #959595;
+      padding: 10px 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+    }
 
-header h1 {
-  margin: 0;
-  font-size: 24px;
-  flex-grow: 1; /* יגרום לכותרת להימתח כך שתהיה בצד אחד */
-  text-align: right; /* מ align את הכותרת לימין */
-}
+    header img {
+      height: 40px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
 
     .search-bar {
-      text-align: center;
-      margin: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
     }
+
     .search-bar input {
-      width: 80%;
+      width: 300px;
       padding: 10px;
       font-size: 16px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    .search-bar button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin-left: 10px;
-      background-color: #333;
-      color: #fff;
+      border-radius: 8px;
       border: none;
-      border-radius: 5px;
     }
-    .results-title {
-      text-align: center;
-      font-size: 24px;
-      margin-top: 20px;
-    }
-    .results {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      padding: 0 20px;
-    }
-    .video-card {
+
+    .search-bar button {
+      background-color: #3b3b3b;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      color: white;
+      font-size: 14px;
       cursor: pointer;
-      border-radius: 10px;
-      overflow: hidden;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s ease;
     }
-    .video-card img {
-      width: 100%;
-      height: auto;
-      display: block;
+
+    .search-bar button:hover {
+      background-color: #1c1c1c;
     }
-    .video-card h3 {
-      text-align: center;
-      padding: 10px;
-      background-color: #333;
-      color: #fff;
-      margin: 0;
+
+    .controls, .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
     }
-    #player {
-      width: 100%;
-      height: 400px;
-      background-color: #000;
-      margin-top: 20px;
+
+    .controls button, .pagination button {
+      background-color: #3b3b3b;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
-    .pagination {
-      text-align: center;
-      margin-top: 20px;
+
+    .controls button:hover, .pagination button:hover {
+      background-color: #1c1c1c;
     }
+
     .spinner {
-      border: 16px solid #f3f3f3;
-      border-top: 16px solid #3498db;
+      border: 8px solid #2c2c2c;
+      border-top: 8px solid #ffffff;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      animation: spin 2s linear infinite;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+      margin: auto;
     }
+
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+
     #error {
-      color: red;
-      text-align: center;
       display: none;
+      text-align: center;
+      color: #ff5252;
+      margin-top: 20px;
+    }
+
+    #player {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      height: 0;
+      padding-bottom: 56.25%;
+      margin: 20px auto;
+      background-color: #000;
+    }
+
+    #player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
+
+    .results-title {
+      text-align: center;
+      font-size: 20px;
+      color: #fff;
+      margin: 20px 0 10px;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      padding: 20px;
+    }
+
+    .video-card {
+      background-color: #b5b5b5;
+      padding: 10px;
+      border-radius: 12px;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+    }
+
+    .video-card img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .video-title {
+      margin: 10px 0 0;
+      font-size: 16px;
+      line-height: 1.4;
+      color: #000;
     }
   </style>
 </head>
@@ -122,8 +178,8 @@ header h1 {
     <input type="text" id="searchInput" placeholder="חפש סרטונים ביוטיוב..." onkeydown="checkEnter(event)" />
     <button onclick="searchVideos()">חפש</button>
   </div>
-<div id="loading" style="display: none;">מחפש תוצאות...</div>
 
+  <div id="loader" style="display: none;">
     <div class="spinner"></div>
   </div>
 
@@ -141,35 +197,30 @@ header h1 {
   </div>
 
   <script>
-    const API_KEY = "AIzaSyAU5b94VFTUNMBLVCdkd_PagUbq1ic-FGQ";
+    const API_KEY = "AIzaSyCKWg2Po9gpQTx2-SSadDOouTB04jBFAAU";
     let currentItems = [];
     let nextPageToken = '';
     let prevPageToken = '';
     let currentQuery = '';
     let currentVideoId;
-    let videoIndex = 0;
-    let player;
 
-    // להטעין את YouTube API
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        videoId: '',
-        events: {
-          'onStateChange': onPlayerStateChange
-        }
-      });
+    function loadCache(query) {
+      const cachedData = localStorage.getItem(query);
+      return cachedData ? JSON.parse(cachedData) : null;
     }
 
-    // שינוי במצב הנגן
-    function onPlayerStateChange(event) {
-      if (event.data === YT.PlayerState.ENDED) {
-        playNextVideo();
+    function saveCache(query, data) {
+      localStorage.setItem(query, JSON.stringify(data));
+    }
+
+    function loadPreviousSearch() {
+      const cachedQuery = localStorage.getItem('lastQuery');
+      if (cachedQuery) {
+        document.getElementById('searchInput').value = cachedQuery;
+        searchVideos();
       }
     }
 
-    // חיפוש סרטונים ביוטיוב
     function searchVideos(pageToken = '') {
       if (!navigator.onLine) {
         document.getElementById('error').style.display = 'block';
@@ -181,9 +232,18 @@ header h1 {
       const query = document.getElementById('searchInput').value;
       if (!query.trim()) return;
       currentQuery = query;
+      localStorage.setItem('lastQuery', query);
 
-      // שמירת חיפוש במטמון
-      localStorage.setItem('lastSearchQuery', query);
+      const cachedResults = loadCache(query);
+      if (cachedResults) {
+        nextPageToken = cachedResults.nextPageToken || '';
+        prevPageToken = cachedResults.prevPageToken || '';
+        document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
+        currentItems = cachedResults.items;
+        renderResults(currentItems);
+        document.getElementById('loader').style.display = 'none';
+        return;
+      }
 
       const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
       fetch(url)
@@ -193,10 +253,9 @@ header h1 {
           prevPageToken = data.prevPageToken || '';
           document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
           currentItems = data.items;
+          saveCache(query, { items: currentItems, nextPageToken, prevPageToken });
           renderResults(currentItems);
           document.getElementById('loader').style.display = 'none';
-          // שמירה של התוצאות במטמון
-          localStorage.setItem('lastSearchResults', JSON.stringify(data.items));
         })
         .catch(err => {
           document.getElementById('error').style.display = 'block';
@@ -205,16 +264,15 @@ header h1 {
         });
     }
 
-    // הצגת תוצאות החיפוש
     function renderResults(results) {
       const resultsContainer = document.getElementById('results');
       resultsContainer.innerHTML = '';
       document.getElementById('resultsTitle').style.display = results.length > 0 ? 'block' : 'none';
 
-      results.forEach((result, index) => {
+      results.forEach((result) => {
         const card = document.createElement('div');
         card.classList.add('video-card');
-        card.onclick = () => playVideo(result.id.videoId, index);
+        card.onclick = () => playVideo(result.id.videoId);
         card.innerHTML = `
           <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
           <h3 class="video-title">${result.snippet.title}</h3>
@@ -226,37 +284,12 @@ header h1 {
       document.getElementById('player').innerHTML = '';
     }
 
-    // טעינת תוצאות חיפוש מהמטמון בעת טעינת הדף
-	// טעינת תוצאות חיפוש מהמטמון בעת טעינת הדף
-function loadFromCache() {
-  const cachedResults = JSON.parse(localStorage.getItem('lastSearchResults'));
-  if (cachedResults) {
-    renderResults(cachedResults);
-  }
-
-  // לא טוענים את query לשורת החיפוש
-  document.getElementById('searchInput').value = '';
-}
-
-
-    // ניגון סרטון
-    function playVideo(videoId, index) {
+    function playVideo(videoId) {
+      const player = document.getElementById('player');
+      player.innerHTML = `
+        <iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      `;
       currentVideoId = videoId;
-      videoIndex = index;
-
-      // יצירת נגן חדש עם הסרטון הנבחר
-      player.loadVideoById(videoId);
-      
-      // מעבר לעמוד הסרטון הנוכחי
-      window.scrollTo({ top: document.getElementById('player').offsetTop, behavior: 'smooth' });
-    }
-
-    // ניגון הסרטון הבא
-    function playNextVideo() {
-      videoIndex++;
-      if (videoIndex < currentItems.length) {
-        playVideo(currentItems[videoIndex].id.videoId, videoIndex);
-      }
     }
 
     function loadNextPage() {
@@ -275,11 +308,7 @@ function loadFromCache() {
       }
     }
 
-    // טעינת נתונים מהמטמון עם טעינת הדף
-    window.onload = loadFromCache;
+    loadPreviousSearch();
   </script>
-
-  <!-- טעינת ה-API של YouTube -->
-  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
