@@ -266,69 +266,72 @@
         searchVideos();
       }
     }
+function searchVideos(pageToken = '') {
+  if (!navigator.onLine) {
+    document.getElementById('error').style.display = 'block';
+    return;
+  }
+  document.getElementById('error').style.display = 'none';
+  document.getElementById('loader').style.display = 'block';
 
-    function searchVideos(pageToken = '') {
-      if (!navigator.onLine) {
-        document.getElementById('error').style.display = 'block';
-        return;
-      }
-      document.getElementById('error').style.display = 'none';
-      document.getElementById('loader').style.display = 'block';
+  const query = document.getElementById('searchInput').value;
+  if (!query.trim()) return;
+  currentQuery = query;
+  localStorage.setItem('lastQuery', query);
 
-      const query = document.getElementById('searchInput').value;
-      if (!query.trim()) return;
-      currentQuery = query;
-      localStorage.setItem('lastQuery', query);
+  const cachedResults = loadCache(query);
+  if (cachedResults) {
+    nextPageToken = cachedResults.nextPageToken || '';
+    prevPageToken = cachedResults.prevPageToken || '';
+    document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
+    currentItems = cachedResults.items;
+    currentIndex = 0; // הוספה
+    renderResults(currentItems);
+    document.getElementById('loader').style.display = 'none';
+    return;
+  }
 
-      const cachedResults = loadCache(query);
-      if (cachedResults) {
-        nextPageToken = cachedResults.nextPageToken || '';
-        prevPageToken = cachedResults.prevPageToken || '';
-        document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
-        currentItems = cachedResults.items;
-        renderResults(currentItems);
-        document.getElementById('loader').style.display = 'none';
-        return;
-      }
+  const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
+  fetch(url)
+    .then(res => res.json())
+    .then(data => {
+      nextPageToken = data.nextPageToken || '';
+      prevPageToken = data.prevPageToken || '';
+      document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
+      currentItems = data.items;
+      currentIndex = 0; // הוספה
+      saveCache(query, { items: currentItems, nextPageToken, prevPageToken });
+      renderResults(currentItems);
+      document.getElementById('loader').style.display = 'none';
+    })
+    .catch(err => {
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('loader').style.display = 'none';
+      console.error(err);
+    });
+}
 
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          nextPageToken = data.nextPageToken || '';
-          prevPageToken = data.prevPageToken || '';
-          document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
-          currentItems = data.items;
-          saveCache(query, { items: currentItems, nextPageToken, prevPageToken });
-          renderResults(currentItems);
-          document.getElementById('loader').style.display = 'none';
-        })
-        .catch(err => {
-          document.getElementById('error').style.display = 'block';
-          document.getElementById('loader').style.display = 'none';
-          console.error(err);
-        });
-    }
+function renderResults(results) {
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.innerHTML = '';
+  document.getElementById('resultsTitle').style.display = results.length > 0 ? 'block' : 'none';
 
-    function renderResults(results) {
-      const resultsContainer = document.getElementById('results');
-      resultsContainer.innerHTML = '';
-      document.getElementById('resultsTitle').style.display = results.length > 0 ? 'block' : 'none';
+  results.forEach((result, index) => {
+    const card = document.createElement('div');
+    card.classList.add('video-card');
+    card.onclick = () => playVideo(result.id.videoId, index);
+    card.innerHTML = `
+      <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
+      <h3 class="video-title">${result.snippet.title}</h3>
+    `;
+    resultsContainer.appendChild(card);
+  });
 
-      results.forEach((result) => {
-        const card = document.createElement('div');
-        card.classList.add('video-card');
-        card.onclick = () => playVideo(result.id.videoId);
-        card.innerHTML = `
-          <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
-          <h3 class="video-title">${result.snippet.title}</h3>
-        `;
-        resultsContainer.appendChild(card);
-      });
+  if (results.length > 0) {
+    playVideo(results[0].id.videoId, 0);
+  }
+}
 
-      // ניקוי הנגן אם יש תוצאות אבל לא רוצים לנגן מיד
-      document.getElementById('player').innerHTML = '';
-    }
 let currentIndex = -1;
 let ytPlayer;
 
