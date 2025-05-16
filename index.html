@@ -231,7 +231,13 @@
   <div class="pagination" id="pagination" style="text-align:center; margin-bottom: 30px; display:none;">
     <button onclick="loadPrevPage()">⬅ הקודם</button>
     <button onclick="loadNextPage()">הבא ➡</button>
+	
   </div>
+  
+  <div class="video-item" onclick="openVideo('dQw4w9WgXcQ')">
+  <img src="https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg" />
+  <p>שם הסרטון</p>
+</div>
 
   <script>
   window.addEventListener('load', () => {
@@ -375,7 +381,14 @@ function playVideo(videoId, index = -1) {
   }
 }
 
-
+function openVideo(videoId) {
+    if (window.AndroidInterface && window.AndroidInterface.playVideo) {
+      window.AndroidInterface.playVideo(videoId);
+    } else {
+      // fallback לדפדפן רגיל
+      window.location.href = "https://www.youtube.com/watch?v=" + videoId;
+    }
+  }
     loadPreviousSearch();
   </script>
 </body>
