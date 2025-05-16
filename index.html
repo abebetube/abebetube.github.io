@@ -348,10 +348,32 @@ function playVideo(videoId, index = -1) {
     videoId: videoId,
     playerVars: { autoplay: 1 },
     events: {
-      'onStateChange': onPlayerStateChange
+      'onStateChange': onPlayerStateChange,
+      'onError': onPlayerError
     }
   });
 }
+
+function onPlayerError(event) {
+  console.warn("נפלה שגיאה בניגון הסרטון:", event.data);
+
+  // קודי שגיאה נפוצים חסימת ניגון: 101, 150
+  const errorCodesToSkip = [101, 150];
+
+  if (errorCodesToSkip.includes(event.data)) {
+    // נסה לנגן את הסרטון הבא ברשימה אם קיים
+    if (currentIndex + 1 < currentItems.length) {
+      playVideo(currentItems[currentIndex + 1].id.videoId, currentIndex + 1);
+    } else {
+      // אין סרטון הבא, נקה נגן והודע למשתמש
+      document.getElementById('player').innerHTML = '';
+      alert('אין סרטונים זמינים לניגון ברשימה הנוכחית.');
+    }
+  } else {
+    // אפשר להוסיף טיפול בשגיאות אחרות או להציג הודעה אחרת
+  }
+}
+
 
 
     function loadNextPage() {
