@@ -231,13 +231,7 @@
   <div class="pagination" id="pagination" style="text-align:center; margin-bottom: 30px; display:none;">
     <button onclick="loadPrevPage()">⬅ הקודם</button>
     <button onclick="loadNextPage()">הבא ➡</button>
-	
   </div>
-  <div id="backButton" style="display:none; text-align:center; margin: 10px;">
-  <button onclick="goBack()">⬅ חזור לתוצאות</button>
-</div>
-
- 
 
   <script>
   window.addEventListener('load', () => {
@@ -274,7 +268,6 @@
     }
 
     function searchVideos(pageToken = '') {
-	
       if (!navigator.onLine) {
         document.getElementById('error').style.display = 'block';
         return;
@@ -316,49 +309,46 @@
           console.error(err);
         });
     }
-	function renderResults(results) {
-  const resultsContainer = document.getElementById('results');
-  resultsContainer.innerHTML = '';
-  document.getElementById('resultsTitle').style.display = results.length > 0 ? 'block' : 'none';
 
-  results.forEach((result, index) => {
-    const card = document.createElement('div');
-    card.classList.add('video-card');
-    card.onclick = () => playVideo(result.id.videoId, index);
-    card.innerHTML = `
-      <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
-      <h3 class="video-title">${result.snippet.title}</h3>
-    `;
-    resultsContainer.appendChild(card);
-  });
+    function renderResults(results) {
+      const resultsContainer = document.getElementById('results');
+      resultsContainer.innerHTML = '';
+      document.getElementById('resultsTitle').style.display = results.length > 0 ? 'block' : 'none';
 
-  document.getElementById('player').innerHTML = '';
-}
+      results.forEach((result) => {
+        const card = document.createElement('div');
+        card.classList.add('video-card');
+        card.onclick = () => playVideo(result.id.videoId);
+        card.innerHTML = `
+          <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
+          <h3 class="video-title">${result.snippet.title}</h3>
+        `;
+        resultsContainer.appendChild(card);
+      });
 
-
+      // ניקוי הנגן אם יש תוצאות אבל לא רוצים לנגן מיד
+      document.getElementById('player').innerHTML = '';
+    }
 let currentIndex = -1;
 let ytPlayer;
 
-function playVideo(videoId) {
+function playVideo(videoId, index = -1) {
   currentVideoId = videoId;
+  currentIndex = index;
 
-  // טען את הסרטון בתוך ה-iframe
-  const player = document.getElementById('player');
-  player.innerHTML = `
-    <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-  `;
+  const playerDiv = document.getElementById('player');
+  playerDiv.innerHTML = `<div id="ytplayer"></div>`;
 
-  // הסתרת רכיבים אחרים כדי להציג מסך ניגון בלבד
-  document.querySelector('.search-bar').style.display = 'none';
-  document.getElementById('results').style.display = 'none';
-  document.getElementById('resultsTitle').style.display = 'none';
-  document.getElementById('pagination').style.display = 'none';
-document.getElementById('backButton').style.display = 'block';
-
-  // הצגת הנגן
-  player.style.display = 'block';
+  ytPlayer = new YT.Player('ytplayer', {
+    height: '100%',
+    width: '100%',
+    videoId: videoId,
+    playerVars: { autoplay: 1 },
+    events: {
+      'onStateChange': onPlayerStateChange
+    }
+  });
 }
-
 
 
     function loadNextPage() {
@@ -376,19 +366,6 @@ document.getElementById('backButton').style.display = 'block';
         searchVideos();
       }
     }
-	
-	function goBack() {
-  document.getElementById('player').innerHTML = '';
-  document.getElementById('player').style.display = 'none';
-  document.getElementById('backButton').style.display = 'none';
-
-  document.querySelector('.search-bar').style.display = 'flex';
-  document.getElementById('results').style.display = 'grid';
-  document.getElementById('resultsTitle').style.display = 'block';
-  document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
-}
-
-	
 	function onPlayerStateChange(event) {
   if (event.data === YT.PlayerState.ENDED) {
     if (currentIndex + 1 < currentItems.length) {
@@ -397,6 +374,7 @@ document.getElementById('backButton').style.display = 'block';
     }
   }
 }
+
 
     loadPreviousSearch();
   </script>
