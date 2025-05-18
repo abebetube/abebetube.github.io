@@ -366,17 +366,17 @@ function onPlayerError(event) {
   }
 }
 
+function loadNextPage() {
+  if (nextPageToken) {
+    searchVideos(nextPageToken);
+  }
+}
 
-
-    function loadNextPage() {
-      if (!nextPageToken) return;
-      searchVideos(nextPageToken);
-    }
-
-    function loadPrevPage() {
-      if (!prevPageToken) return;
-      searchVideos(prevPageToken);
-    }
+function loadPrevPage() {
+  if (prevPageToken) {
+    searchVideos(prevPageToken);
+  }
+}
 
     function checkEnter(event) {
       if (event.key === 'Enter') {
