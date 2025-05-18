@@ -298,27 +298,31 @@ function searchVideos(pageToken = '') {
 });
 
 }
+function renderResults(videos) {
+  const results = document.getElementById('results');
+  results.innerHTML = '';
+  videos.forEach(video => {
+    const videoId = video.id.videoId;
+    const title = video.snippet.title;
+    const thumbnail = video.snippet.thumbnails.medium.url;
 
-function renderResults(results) {
-  const resultsContainer = document.getElementById('results');
-  resultsContainer.innerHTML = '';
-  document.getElementById('resultsTitle').style.display = results.length > 0 ? 'block' : 'none';
-
-  results.forEach((result, index) => {
-    const card = document.createElement('div');
-    card.classList.add('video-card');
-    card.onclick = () => playVideo(result.id.videoId, index);
-    card.innerHTML = `
-      <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
-      <h3 class="video-title">${result.snippet.title}</h3>
+    const videoCard = document.createElement('div');
+    videoCard.className = 'video-card';
+    videoCard.innerHTML = `
+      <img src="${thumbnail}" alt="${title}" />
+      <div class="video-title">${title}</div>
     `;
-    resultsContainer.appendChild(card);
+    videoCard.onclick = () => {
+      playVideo(videoId);
+      scrollToPlayer();
+    };
+
+    results.appendChild(videoCard);
   });
 
-  if (results.length > 0) {
-    playVideo(results[0].id.videoId, 0);
-  }
+  document.getElementById('resultsTitle').style.display = 'block';
 }
+
 
 let currentIndex = -1;
 let ytPlayer;
@@ -389,6 +393,10 @@ function onPlayerError(event) {
 }
 
 
+function scrollToPlayer() {
+  const player = document.getElementById('player');
+  player.scrollIntoView({ behavior: 'smooth' });
+}
 
 
     loadPreviousSearch();
