@@ -286,14 +286,14 @@ function searchVideos(pageToken = '') {
   fetch(url)
     .then(res => res.json())
 	.then(data => {
-  nextPageToken = data.nextPageToken || '';
-  prevPageToken = data.prevPageToken || '';
-  document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
-  currentItems = data.items;
-  currentIndex = 0;
-  renderResults(currentItems);
-  saveCache(query, data);
-})
+	  nextPageToken = data.nextPageToken || '';
+	  prevPageToken = data.prevPageToken || '';
+	  document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
+	  currentItems = data.items;
+	  currentIndex = 0;
+	  renderResults(currentItems);
+	  saveCache(query, data);
+	})
 .catch(error => {
   console.error('Error fetching videos:', error);
   document.getElementById('error').style.display = 'block';
@@ -380,7 +380,7 @@ function onPlayerError(event) {
     }
 
     function checkEnter(event) {
-      if (event.key === "Enter") {
+      if (event.key === 'Enter') {
         searchVideos();
       }
     }
