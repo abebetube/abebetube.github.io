@@ -173,6 +173,7 @@
   animation: spin 5s linear forwards;
 }
 
+
 @keyframes spin {
   0%   { transform: rotate(0deg) scale(1); opacity: 1; }
   70%  { transform: rotate(720deg) scale(1); }
@@ -252,8 +253,7 @@
         searchVideos();
       }
     }
-	
-	function searchVideos(pageToken = '') {
+function searchVideos(pageToken = '') {
   if (!navigator.onLine) {
     document.getElementById('error').style.display = 'block';
     return;
@@ -261,24 +261,21 @@
   document.getElementById('error').style.display = 'none';
   document.getElementById('loader').style.display = 'block';
 
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) return;
-
+  const query = document.getElementById('searchInput').value;
+  if (!query.trim()) return;
   currentQuery = query;
   localStorage.setItem('lastQuery', query);
 
-  // נטען מהמטמון רק אם זה חיפוש ראשוני
-  if (!pageToken) {
-    const cachedResults = loadCache(query);
-    if (cachedResults) {
-      nextPageToken = cachedResults.nextPageToken || '';
-      prevPageToken = cachedResults.prevPageToken || '';
-      document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
-      currentItems = cachedResults.items;
-      renderResults(currentItems);
-      document.getElementById('loader').style.display = 'none';
-      return;
-    }
+  const cachedResults = loadCache(query);
+  if (cachedResults) {
+    nextPageToken = cachedResults.nextPageToken || '';
+    prevPageToken = cachedResults.prevPageToken || '';
+    document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
+    currentItems = cachedResults.items;
+    currentIndex = 0; // הוספה
+    renderResults(currentItems);
+    document.getElementById('loader').style.display = 'none';
+    return;
   }
 
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
@@ -289,51 +286,38 @@
       prevPageToken = data.prevPageToken || '';
       document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
       currentItems = data.items;
+      currentIndex = 0; // הוספה
+      saveCache(query, { items: currentItems, nextPageToken, prevPageToken });
       renderResults(currentItems);
       document.getElementById('loader').style.display = 'none';
-
-      // נשמור רק אם זה חיפוש ראשוני (לא עמודים נוספים)
-      if (!pageToken) {
-        saveCache(query, {
-          items: data.items,
-          nextPageToken: data.nextPageToken,
-          prevPageToken: data.prevPageToken
-        });
-      }
     })
     .catch(err => {
-      console.error('שגיאה בטעינת הנתונים:', err);
       document.getElementById('error').style.display = 'block';
       document.getElementById('loader').style.display = 'none';
+      console.error(err);
     });
 }
 
-	
-function renderResults(videos) {
-  const results = document.getElementById('results');
-  results.innerHTML = '';
-  videos.forEach(video => {
-    const videoId = video.id.videoId;
-    const title = video.snippet.title;
-    const thumbnail = video.snippet.thumbnails.medium.url;
+function renderResults(results) {
+  const resultsContainer = document.getElementById('results');
+  resultsContainer.innerHTML = '';
+  document.getElementById("resultsTitle").style.display = results.length > 0 ? 'block' : 'none';
 
-    const videoCard = document.createElement('div');
-    videoCard.className = 'video-card';
-    videoCard.innerHTML = `
-      <img src="${thumbnail}" alt="${title}" />
-      <div class="video-title">${title}</div>
+  results.forEach((result, index) => {
+    const card = document.createElement('div');
+    card.classList.add('video-card');
+    card.onclick = () => playVideo(result.id.videoId, index);
+    card.innerHTML = `
+      <img src="${result.snippet.thumbnails.medium.url}" alt="${result.snippet.title}">
+      <h3 class="video-title">${result.snippet.title}</h3>
     `;
-    videoCard.onclick = () => {
-      playVideo(videoId);
-      scrollToPlayer();
-    };
-
-    results.appendChild(videoCard);
+    resultsContainer.appendChild(card);
   });
 
-  document.getElementById('resultsTitle').style.display = 'block';
+  if (results.length > 0) {
+    playVideo(results[0].id.videoId, 0);
+  }
 }
-
 
 let currentIndex = -1;
 let ytPlayer;
@@ -377,20 +361,20 @@ function onPlayerError(event) {
   }
 }
 
-function loadNextPage() {
-  if (nextPageToken) {
-    searchVideos(nextPageToken);
-  }
-}
 
-function loadPrevPage() {
-  if (prevPageToken) {
-    searchVideos(prevPageToken);
-  }
-}
+
+    function loadNextPage() {
+      if (!nextPageToken) return;
+      searchVideos(nextPageToken);
+    }
+
+    function loadPrevPage() {
+      if (!prevPageToken) return;
+      searchVideos(prevPageToken);
+    }
 
     function checkEnter(event) {
-      if (event.key === 'Enter') {
+      if (event.key === "Enter") {
         searchVideos();
       }
     }
@@ -403,14 +387,50 @@ function loadPrevPage() {
   }
 }
 
+    loadPreviousSearch();
+	
+	
+	
+	
+	async function getSponsorSegments(videoId) {
+  const url = `https://api.sponsor.ajay.app/api/skipSegments?videoID=${videoId}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const sponsors = data.filter(seg => seg.category.includes('sponsor'));
+    return sponsors;
+  } catch (e) {
+    console.error("שגיאה בקבלת חסויות:", e);
+    return [];
+  }
+}
 
-function scrollToPlayer() {
-  const player = document.getElementById('player');
-  player.scrollIntoView({ behavior: 'smooth' });
+let sponsorSegments = [];
+
+async function checkAndSkip(player, videoId) {
+  const res = await fetch(`https://api.sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
+  sponsorSegments = await res.json();
+
+  player.ontimeupdate = () => {
+    const currentTime = player.currentTime;
+    for (const segment of sponsorSegments) {
+      const [start, end] = segment.segment;
+      if (currentTime >= start && currentTime < end) {
+        player.currentTime = end;
+        console.log("דלג על חסות");
+        break;
+      }
+    }
+  };
+}
+function checkEnter(event) {
+  if (event.key === 'Enter') {
+    searchVideos();
+  }
 }
 
 
-    loadPreviousSearch();
+
   </script>
 </body>
 </html>
