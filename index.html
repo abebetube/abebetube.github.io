@@ -424,29 +424,27 @@ function scrollToPlayer() {
   }
 }
 
-let sponsorSegments = [];
+async function skipSponsorSegments(videoId) {
+    try {
+        const response = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
+        if (!response.ok) throw new Error('Network response was not ok');
 
-async function checkAndSkip(player, videoId) {
-  const res = await fetch(`https://api.sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
-  sponsorSegments = await res.json();
+        const data = await response.json();
 
-  player.ontimeupdate = () => {
-    const currentTime = player.currentTime;
-    for (const segment of sponsorSegments) {
-      const [start, end] = segment.segment;
-      if (currentTime >= start && currentTime < end) {
-        player.currentTime = end;
-        console.log("דלג על חסות");
-        break;
-      }
+        if (data.length > 0 && player && typeof player.seekTo === "function") {
+            // דילוג על הקטע הראשון שמזוהה (לדוגמה)
+            const segment = data[0].segment;
+            const endTime = segment[1];
+            player.seekTo(endTime + 0.5, true);
+            console.log(`Skipped sponsor segment until ${endTime} seconds`);
+        } else {
+            console.log('No sponsor segments found');
+        }
+    } catch (error) {
+        console.error('Error fetching sponsor segments:', error);
     }
-  };
 }
-function checkEnter(event) {
-  if (event.key === 'Enter') {
-    searchVideos();
-  }
-}
+
 
 
     loadPreviousSearch();
