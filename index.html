@@ -422,8 +422,7 @@ function scrollToPlayer() {
     console.error("שגיאה בקבלת חסויות:", e);
     return [];
   }
-}
-async function skipSponsorSegments(videoId) {
+}async function skipSponsorSegments(videoId) {
     try {
         const response = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
         if (!response.ok) throw new Error('Network response was not ok');
