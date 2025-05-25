@@ -423,7 +423,6 @@ function scrollToPlayer() {
     return [];
   }
 }
-
 async function skipSponsorSegments(videoId) {
     try {
         const response = await fetch(`https://sponsor.ajay.app/api/skipSegments?videoID=${videoId}`);
