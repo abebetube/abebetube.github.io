@@ -253,21 +253,25 @@
       }
     }
 	
+	
 	function searchVideos(pageToken = '') {
   if (!navigator.onLine) {
     document.getElementById('error').style.display = 'block';
     return;
   }
+
   document.getElementById('error').style.display = 'none';
   document.getElementById('loader').style.display = 'block';
 
   const query = document.getElementById('searchInput').value.trim();
-  if (!query) return;
+  if (!query) {
+    document.getElementById('loader').style.display = 'none';
+    return;
+  }
 
   currentQuery = query;
   localStorage.setItem('lastQuery', query);
 
-  // נטען מהמטמון רק אם זה חיפוש ראשוני
   if (!pageToken) {
     const cachedResults = loadCache(query);
     if (cachedResults) {
@@ -284,21 +288,25 @@
   const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${API_KEY}&pageToken=${pageToken}`;
   fetch(url)
     .then(res => res.json())
-	<!-- המשך הקוד לאחר fetch -->
-.then(data => {
-  nextPageToken = data.nextPageToken || '';
-  prevPageToken = data.prevPageToken || '';
-  document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
-  currentItems = data.items;
-  if (!pageToken) saveCache(query, data);
-  renderResults(currentItems);
-  document.getElementById('loader').style.display = 'none';
-})
-.catch(err => {
-  console.error('שגיאה בטעינת נתונים:', err);
-  document.getElementById('loader').style.display = 'none';
-});
+    .then(data => {
+      nextPageToken = data.nextPageToken || '';
+      prevPageToken = data.prevPageToken || '';
+      document.getElementById('pagination').style.display = (nextPageToken || prevPageToken) ? 'flex' : 'none';
+
+      currentItems = data.items;
+      if (!pageToken) saveCache(query, data);
+
+      renderResults(currentItems);
+      document.getElementById('loader').style.display = 'none';
+    })
+    .catch(error => {
+      console.error('שגיאה בשליפת נתונים:', error);
+      document.getElementById('error').textContent = 'אירעה שגיאה בטעינת הסרטונים. נסה שוב.';
+      document.getElementById('error').style.display = 'block';
+      document.getElementById('loader').style.display = 'none';
+    });
 }
+
 
 function checkEnter(event) {
   if (event.key === 'Enter') {
@@ -343,6 +351,9 @@ function renderResults(items) {
     }
   });
 }
+
+
+
 
 function playVideo(videoId) {
   const player = document.getElementById('player');
