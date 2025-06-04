@@ -203,6 +203,8 @@
     <div id="player-container"></div>
     <div id="results"></div>
   </div>
+  <button onclick="toggleFullScreen()">מעבר למסך מלא</button>
+
 <div id="splash">
   <div class="logo-area">
     <img src="logo.png" alt="logo">
@@ -291,14 +293,29 @@
         console.error("שגיאת חיפוש:", e);
       }
     }
+	
+	function toggleFullScreen() {
+    const btn = document.querySelector("button");
+
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        btn.textContent = "יציאה ממסך מלא";
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+            btn.textContent = "מעבר למסך מלא";
+        }
+    }
+}
+
+	
 
     function playVideo(index) {
       const video = playlist[index];
       if (!video) return;
 
       document.getElementById("player-container").innerHTML = `
-        <iframe id="ytplayer" src="https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1"
-		allowfullscreen allow="autoplay"></iframe>
+        <iframe id="ytplayer" src="https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1" allowfullscreen allow="autoplay"></iframe>
       `;
 	  setTimeout(() => {
     document.getElementById("player-container").scrollIntoView({ behavior: "smooth", block: "start" });
