@@ -116,19 +116,46 @@
       font-size: 0.9rem;
     }
 
-    /* Splash screen */
-    #splash {
-      position: fixed;
-      top: 0;
-      right: 0;
-      left: 0;
-      bottom: 0;
-      background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-    }
+   /* Splash screen - fireworks style */
+#splash {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.fireworks-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: hsl(calc(var(--i) * 36), 100%, 50%);
+  border-radius: 50%;
+  animation: explode 1s ease-out forwards;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(calc(var(--i) * 12deg)) translateY(0);
+}
+
+@keyframes explode {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 12deg)) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(calc(var(--i) * 12deg)) translateY(-120px);
+  }
+} 
 
     .logo-area {
       text-align: center;
@@ -156,7 +183,7 @@
   </style>
 </head>
 <body>
-  <header>AbeTube - נגן יוטיוב ללא פרסומות</header>
+  <header>AbeTube - נגן יוטיוב  </header>
 
   <div class="container">
     <div class="search-box">
