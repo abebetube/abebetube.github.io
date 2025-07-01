@@ -139,6 +139,15 @@
         currentIndex = parseInt(idx);
         playVideo(currentIndex);
       }
+      function checkAndClearCache() {
+  const lastClearTime = localStorage.getItem('lastCacheClearTime');
+  const now = Date.now();
+
+  if (!lastClearTime || now - lastClearTime > 86400000) { // 24 שעות במילישניות
+    localStorage.clear(); // מחיקת המטמון
+    localStorage.setItem('lastCacheClearTime', now);
+  }
+}
     }
 
     const tag = document.createElement("script");
@@ -148,7 +157,10 @@
   
 
 window.addEventListener("load", () => {
+
   const splash = document.getElementById("splash");
+   checkAndClearCache();
+  loadFromCache();
   let count = 0;
   const interval = setInterval(() => {
     launchFireworks();
