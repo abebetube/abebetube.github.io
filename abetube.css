@@ -85,7 +85,6 @@ body {
       margin: 0;
       padding: 0;
       direction: rtl;
-      scroll-margin-block-start: top;
     }
 
     header {
