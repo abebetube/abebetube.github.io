@@ -117,6 +117,10 @@
       font-size: 0.9rem;
     }
 
+    .ad, .ads, .advertisement {
+  display: none !important;
+}
+
    /* Splash screen - fireworks style */
 #splash {
   position: fixed;
@@ -344,6 +348,13 @@
       }
     }
 
+      document.addEventListener('DOMContentLoaded', () => {
+    // למשל, לחסום אלמנטים עם class מסוים של פרסומות
+    const ads = document.querySelectorAll('.ad, .ads, .advertisement');
+    ads.forEach(ad => ad.style.display = 'none');
+  });
+    
+
     function saveToCache() {
       localStorage.setItem("abe_playlist", JSON.stringify(playlist));
       localStorage.setItem("abe_index", currentIndex);
@@ -409,5 +420,6 @@ window.addEventListener("load", () => {
   </script>
 </body>
 </html>
+
 
 
