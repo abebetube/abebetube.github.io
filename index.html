@@ -353,6 +353,25 @@
     const ads = document.querySelectorAll('.ad, .ads, .advertisement');
     ads.forEach(ad => ad.style.display = 'none');
   });
+
+    // פונקציה לחיפוש והסרת פרסומות
+function skipAds() {
+    // זהוי אלמנטים שמוגדרים כפרסומת, לדוגמה לפי class או id
+    const adElements = document.querySelectorAll('.ad, .advertisement, #ad-container');
+
+    adElements.forEach(el => {
+        el.style.display = 'none'; // להסתיר את הפרסומת
+    });
+
+    // אפשר גם לנסות לדלג על פרסומות שמנוגנות, לדוגמה על ידי לחיצה על כפתור "דלג"
+    const skipButton = document.querySelector('.skip-ad, .skip-button');
+    if (skipButton) {
+        skipButton.click();
+    }
+}
+
+// להריץ את הפונקציה כל כמה שניות כדי לכסות פרסומות שמתעוררות מחדש
+setInterval(skipAds, 3000);
     
 
     function saveToCache() {
@@ -420,6 +439,7 @@ window.addEventListener("load", () => {
   </script>
 </body>
 </html>
+
 
 
 
