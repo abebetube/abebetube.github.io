@@ -307,7 +307,7 @@
       setTimeout(() => setupPlayerEvents(), 1000);
     }
 
-    function toggleFullScreen() {
+   /* function toggleFullScreen() {
       const btn = document.getElementById("fullscreen-btn");
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
@@ -317,9 +317,9 @@
         btn.textContent = "מעבר למסך מלא";
       }
     }
-
+*/
     function setupPlayerEvents() {
-      if (typeof YT === "undefined" || typeof YT.Player === "undefined") return;
+      if (typeof YT === "ad" || typeof YT.Player === "undefined" || typeof YT === "AD" || typeof YT === "Ad show") return;
       new YT.Player("ytplayer", {
         events: {
           onStateChange: (e) => {
@@ -409,3 +409,4 @@ window.addEventListener("load", () => {
   </script>
 </body>
 </html>
+
